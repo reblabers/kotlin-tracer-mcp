@@ -1,0 +1,46 @@
+[tools]
+gradle = "8.12.1"
+java = "corretto-21.0.6.7.1"
+
+[tasks.build]
+description = "Build kotlin-tracer-mcp"
+run = [
+    "gradle jar",
+    "docker build -t kotlin-tracer-mcp -f Dockerfile .",
+]
+
+[tasks.test]
+description = "全テストを実行"
+run = ["gradle test --info"]
+
+[tasks."test:single"]
+description = "指定したテストクラスのみを実行"
+# Example: mise run test:single --class ClassNameSearcher
+run = 'gradle test --tests "com.example.{{option(name="class")}}" --info'
+
+[tasks.auto-format]
+description = "コードを自動フォーマット"
+run = "gradle ktlintFormat"
+
+# kotlind-sdkの影響で動かない
+# [tasks.show]
+# description = "利用可能なツールを表示"
+# # Example: mise run show
+# run = "mise run build && cd ../mcp-client && mise run show kotlin-tracer"
+
+[tasks.tool]
+description = "ツールを実行"
+# Example:
+# mise run tool get_total_source_files '{"project": "mvc-kotlin"}'
+# mise run tool search_files '{"project": "mvc-kotlin", "pattern": "Controller.kt", "fullPath": true}'
+# mise run tool search_class_names '{"project": "mvc-kotlin", "pattern": ".*Controller"}'
+# mise run tool analyze_class_methods '{"project": "mvc-kotlin", "className": "OpController"}'
+# mise run tool analyze_method_calls '{"project": "mvc-kotlin", "qualifiedName": "org.example.threaddemo.controllers.OpController.multiply()"}'
+# mise run tool get_methods '{"project": "mvc-kotlin", "qualifiedNames": ["org.example.threaddemo.controllers.OpController.multiply()"]}'
+# mise run tool get_classes '{"project": "mvc-kotlin", "qualifiedNames": ["org.example.threaddemo.controllers.OpController"]}'
+run =  'cd ../mcp-client && mise run tool kotlin-tracer {{arg(name="tool")}} {{arg(name="args")}}'
+
+[tasks.tool-after-build]
+description = "ビルド後にツールを実行"
+depends = ['build']
+run = 'mise run tool {{arg(name="tool")}} {{arg(name="args")}}'
