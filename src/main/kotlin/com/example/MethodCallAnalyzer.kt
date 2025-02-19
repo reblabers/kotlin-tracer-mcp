@@ -92,7 +92,7 @@ class MethodCallAnalyzer(
 
         return MethodCallResult(
             qualifiedName = targetMethod.fullName,
-            calledMethods = result.map { it.targetName },
+            calledMethods = result.map { it.targetName }.distinct(),
         )
     }
 

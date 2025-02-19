@@ -3,9 +3,10 @@ package org.example.threaddemo.services
 import org.example.threaddemo.repositories.HelloRepository
 import org.example.threaddemo.repositories.WorldRepository
 import org.springframework.stereotype.Service
-import kotlin.times
 
-interface Op
+interface Op {
+    fun divide(a: Int): Int = a / 2
+}
 
 @Service
 class OpService(
@@ -30,5 +31,9 @@ class OpService(
 
     private fun privateMethod(): Int {
         return worldRepository.count()
+    }
+
+    suspend fun suspendOperation(): String {
+        return "Suspended operation completed"
     }
 }

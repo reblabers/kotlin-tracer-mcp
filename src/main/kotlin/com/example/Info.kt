@@ -6,6 +6,28 @@ import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.psiUtil.visibilityModifierType
 
 /**
+ * 指定されたKotlin関数の完全修飾名を、パラメータ型を含めて構築します。
+ *
+ * @param function 完全修飾名を構築したいKotlin関数（`KtFunction`）
+ * @return パラメータ型情報を括弧内に含めた関数の完全修飾名を表す文字列
+ */
+fun toQualifiedName(function: KtFunction): String {
+    val parameterTypes = function.valueParameters.map { toTypeName(it) }
+    val parameterString = "(${parameterTypes.joinToString(",")})"
+    return "${function.fqName?.asString() ?: ""}$parameterString"
+}
+
+/**
+ * 指定された Kotlin パラメータの型リファレンスを、対応する型名として文字列に変換します。
+ *
+ * @param parameter 型を変換したい Kotlin パラメータ。
+ * @return 指定されたパラメータの型名を表す文字列。型リファレンスが存在しない場合は "Any" を返します。
+ */
+fun toTypeName(parameter: KtParameter): String {
+    return parameter.typeReference?.javaTypeString() ?: "Any"
+}
+
+/**
  * メソッドの情報を表すデータクラス
  *
  * @property name メソッド名
@@ -31,16 +53,14 @@ data class MethodInfo(
          * KtFunctionからメソッド情報を抽出します。
          */
         fun from(function: KtFunction): MethodInfo {
-            val parameterTypes = function.valueParameters.map { ParameterInfo.from(it).type }
-            val parameterString = "(${parameterTypes.joinToString(",")})"
             val allModifiers = function.modifierList?.text?.split(" ")?.filter { it.isNotBlank() } ?: emptyList()
             val (annotations, modifiers) = allModifiers.partition { it.startsWith("@") }
 
             return MethodInfo(
                 name = function.name ?: "",
-                qualifiedName = "${function.fqName?.asString() ?: ""}$parameterString",
+                qualifiedName = toQualifiedName(function),
                 visibility = function.visibilityModifierType()?.value ?: "public",
-                annotations = annotations.sorted(),
+                annotations = annotations.map { it.trim() }.sorted(),
                 modifiers = modifiers.sorted(),
                 parameters = function.valueParameters.map { ParameterInfo.from(it) },
                 returnType = function.typeReference?.javaTypeString() ?: "Unit",
@@ -70,7 +90,7 @@ data class ParameterInfo(
         fun from(parameter: KtParameter): ParameterInfo {
             return ParameterInfo(
                 name = parameter.name ?: "",
-                type = parameter.typeReference?.javaTypeString() ?: "Any",
+                type = toTypeName(parameter),
                 defaultValue = parameter.defaultValue?.text,
             )
         }

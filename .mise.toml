@@ -33,12 +33,12 @@ description = "ツールを実行"
 # Example:
 # mise run tool get_total_source_files '{"project": "mvc-kotlin"}'
 # mise run tool search_files '{"project": "mvc-kotlin", "pattern": "Controller.kt", "fullPath": true}'
-# mise run tool search_class_names '{"project": "mvc-kotlin", "pattern": ".*Controller"}'
+# mise run tool search_class_names '{"project": "mvc-kotlin", "pattern": ".*Controller$"}'
 # mise run tool analyze_class_methods '{"project": "mvc-kotlin", "className": "OpController"}'
 # mise run tool analyze_method_calls '{"project": "mvc-kotlin", "qualifiedName": "org.example.threaddemo.controllers.OpController.multiply()"}'
 # mise run tool get_methods '{"project": "mvc-kotlin", "qualifiedNames": ["org.example.threaddemo.controllers.OpController.multiply()"]}'
 # mise run tool get_classes '{"project": "mvc-kotlin", "qualifiedNames": ["org.example.threaddemo.controllers.OpController"]}'
-run =  'cd ../mcp-client && mise run tool kotlin-tracer {{arg(name="tool")}} {{arg(name="args")}}'
+run =  'cd ../mcp-client-sample && mise run tool kotlin-tracer {{arg(name="tool")}} {{arg(name="args")}}'
 
 [tasks.tool-after-build]
 description = "ビルド後にツールを実行"

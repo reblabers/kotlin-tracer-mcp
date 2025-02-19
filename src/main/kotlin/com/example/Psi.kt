@@ -109,9 +109,9 @@ data class SourceFiles(val files: List<SourceFile>) {
 fun FqName.isInsideOf(parent: FqName) = this != parent && this.startsWith(parent)
 
 /**
- * 指定されたパッケージが、指定された親パッケージの配下にあるか、または同じであるかを判定します。
+ * thisが、指定された親パッケージの配下にあるか、または同じであるかを判定します。
  *
  * @param parent 親パッケージ
- * @return 指定されたパッケージが親パッケージの配下にあるか、同じ場合はtrue、そうでない場合はfalse
+ * @return thisが親パッケージの配下にあるか、同じ場合はtrue、そうでない場合はfalse
  */
 fun FqName.isOrInsideOf(parent: FqName): Boolean = this.startsWith(parent)

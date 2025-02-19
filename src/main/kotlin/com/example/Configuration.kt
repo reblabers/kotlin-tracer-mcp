@@ -363,7 +363,7 @@ fun configureServer(): Server {
                 val qualifiedNames =
                     requireNotNull(request.arguments["qualifiedNames"]).jsonArray.map { it.jsonPrimitive.content }
 
-                val result = analyzer.getMethodDetails(qualifiedNames)
+                val result = analyzer.getMethodDetails(qualifiedNames, project.searchScope)
                 listOf(
                     TextContent(format.encodeToString(result)),
                 )
@@ -401,6 +401,7 @@ fun configureServer(): Server {
             ),
         handler =
             handling { request ->
+                // TODO: プロジェクト名が取得できないエラー
                 val projectName = requireNotNull(request.arguments["project"]).jsonPrimitive.content
                 val project = requireNotNull(allProjects[projectName])
                 val analyzer = ToolFactory.forProject(project).createClassDetailAnalyzer()
