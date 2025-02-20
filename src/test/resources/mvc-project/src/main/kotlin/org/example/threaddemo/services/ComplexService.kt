@@ -10,6 +10,8 @@ fun rootFun(a: Int): Int = a * a
 
 fun rootFun(a: Int, b: Int): Int = a * b
 
+fun <T> List<T>.toHashCode(): Int = this.sumOf { it.hashCode() }
+
 @Service
 class ComplexService(
     private val helloRepository: HelloRepository,
@@ -30,9 +32,10 @@ class ComplexService(
     data class ComplexResult(val answer: String)
 
     fun exec(name: String): ComplexResult {
+        val hash = listOf(name, String(CharArray(3))).toHashCode()
         val c1 = helloRepository.count() * InnerClass.one()
         val c2 = privateMethod() * InnerClass.one("a")
-        val answers = listOf(rootFun(ComplexConverter.default().convert(MultiplyScale.DEFAULT.calculate(c1 + c2))))
+        val answers = listOf(rootFun(ComplexConverter.default().convert(MultiplyScale.DEFAULT.calculate(hash + c1 + c2))))
         return toResult(name, answers)
     }
 

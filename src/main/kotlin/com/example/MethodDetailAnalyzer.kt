@@ -57,12 +57,14 @@ class MethodDetailAnalyzer(
         qualifiedMethodNames: List<String>,
         methodSearchScope: String,
     ): MethodDetailsResult {
+        val finder = Finder(resources, methodSearchScope)
+
         val successResults = mutableListOf<MethodDetailResult>()
         val failedQualifiedNames = mutableListOf<String>()
 
         qualifiedMethodNames.forEach { qualifiedMethodName ->
             try {
-                val result = getMethodDetail(qualifiedMethodName, methodSearchScope)
+                val result = getMethodDetail(qualifiedMethodName, methodSearchScope, finder)
                 successResults.add(result)
             } catch (_: IllegalArgumentException) {
                 failedQualifiedNames.add(qualifiedMethodName)
@@ -83,64 +85,43 @@ class MethodDetailAnalyzer(
         qualifiedMethodName: String,
         methodSearchScope: String,
     ): MethodDetailResult {
+        val finder = Finder(resources, methodSearchScope)
+        return getMethodDetail(qualifiedMethodName, methodSearchScope, finder)
+    }
+
+    fun getMethodDetail(
+        qualifiedMethodName: String,
+        methodSearchScope: String,
+        finder: Finder,
+    ): MethodDetailResult {
         require(qualifiedMethodName.contains("(") && qualifiedMethodName.endsWith(")")) {
             "Invalid method name format. Expected: package.Class.method(param1,param2) or package.function(param1,param2)"
         }
 
         val targetFqName = FqName(qualifiedMethodName)
+        if (!targetFqName.isOrInsideOf(FqName(methodSearchScope))) {
+            throw IllegalArgumentException("Method not found in search scope")
+        }
+
         val methods =
             resources.allSources().files
                 .filter { targetFqName.isOrInsideOf(it.packageFqName) }
                 .flatMap { it.readonly.functionList() }
 
-        // find from kt function
-        val targetMethod = methods.find { toQualifiedName(it) == qualifiedMethodName }
-        if (targetMethod != null) {
-            return MethodDetailResult.from(targetMethod)
-        }
+        // JavaMethodとして検索
+        val targetFunction =
+            finder.findKtFunction(qualifiedMethodName)
+                ?: run {
+                    // KtFunctionとして見つからない場合、JavaMethodとして検索
+                    val javaMethod =
+                        finder.findJavaMethod(qualifiedMethodName)
+                            ?: throw IllegalArgumentException("Method not found")
 
-        return findFromJavaClasses(qualifiedMethodName, methodSearchScope, methods)
-    }
-
-    private fun findFromJavaClasses(
-        qualifiedMethodName: String,
-        methodSearchScope: String,
-        methods: List<KtFunction>,
-    ): MethodDetailResult {
-        val targetMethod =
-            resources.classesInPackage(methodSearchScope)
-                .flatMap { it.methods }
-                .filter {
-                    println(it)
-                    true
+                    // JavaMethodからKtFunctionに変換
+                    finder.findKtFunction(javaMethod)
+                        ?: throw IllegalArgumentException("Method not found: Failed to convert Java method to Kotlin function")
                 }
-                .find { it.fullName == qualifiedMethodName }
-                ?: throw IllegalArgumentException("Method not found: $qualifiedMethodName")
 
-        val functions =
-            methods
-                .filter { it.name == targetMethod.name }
-                .toList()
-
-        if (functions.size == 1) {
-            return MethodDetailResult.from(functions.single())
-        }
-
-        if (functions.isNotEmpty()) {
-            val targetParameterTypes =
-                targetMethod.parameterTypes
-                    .map { it.name }.map { it.substringAfterLast(".") }.map { it.lowercase() }
-            for (function in functions) {
-                val parameterTypes =
-                    function.valueParameters
-                        .map { toTypeName(it) }.map { it.substringAfterLast(".") }
-                        .map { it.lowercase() }
-                if (parameterTypes == targetParameterTypes) {
-                    return MethodDetailResult.from(function)
-                }
-            }
-        }
-
-        throw IllegalArgumentException("Method not found in source files: $qualifiedMethodName")
+        return MethodDetailResult.from(targetFunction)
     }
 }

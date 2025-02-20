@@ -64,24 +64,39 @@ class MethodCallAnalyzer(
     /**
      * 指定されたメソッドの呼び出し関係を解析する
      *
-     * @param qualifiedName 完全修飾メソッド名 (例: "org.example.MyClass.myMethod(int)")
+     * @param qualifiedMethodName 完全修飾メソッド名 (例: "org.example.MyClass.myMethod(int)")
      * @param methodSearchScope メソッドを検索するパッケージスコープ (例: "org.example")
      * @param maxDepth 解析する最大深さ
      * @return メソッド呼び出し解析結果
      * @throws IllegalArgumentException メソッドが見つからない場合
      */
     fun analyzeMethodCalls(
-        qualifiedName: String,
+        qualifiedMethodName: String,
         methodSearchScope: String,
         maxDepth: Int = 5,
     ): MethodCallResult {
-        require(qualifiedName.contains("(") && qualifiedName.endsWith(")")) { "Qualified name must contain a parameter list" }
+        require(qualifiedMethodName.contains("(") && qualifiedMethodName.endsWith(")")) { "Qualified name must contain a parameter list" }
 
+        val targetFqName = FqName(qualifiedMethodName)
+        if (!targetFqName.isOrInsideOf(FqName(methodSearchScope))) {
+            throw IllegalArgumentException("Method not found in search scope")
+        }
+
+        val finder = Finder(resources, methodSearchScope)
+
+        // JavaMethodとして検索
         val targetMethod =
-            resources.classesInPackage(methodSearchScope)
-                .flatMap { it.methods }
-                .find { it.fullName == qualifiedName }
-                ?: throw IllegalArgumentException("Method not found")
+            finder.findJavaMethod(qualifiedMethodName)
+                ?: run {
+                    // JavaMethodとして見つからない場合、KtFunctionとして検索
+                    val ktFunction =
+                        finder.findKtFunction(qualifiedMethodName)
+                            ?: throw IllegalArgumentException("Method not found")
+
+                    // KtFunctionからJavaMethodに変換
+                    finder.findJavaMethod(ktFunction)
+                        ?: throw IllegalArgumentException("Method not found: Failed to convert Kotlin function to Java method")
+                }
 
         val result =
             analyzeMethodRecursively(

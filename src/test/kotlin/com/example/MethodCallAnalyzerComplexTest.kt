@@ -35,6 +35,7 @@ class MethodCallAnalyzerComplexTest : DescribeSpec({
                         "org.example.threaddemo.services.ComplexService\$ComplexResult.<init>(java.lang.String)",
                         "org.example.threaddemo.services.ComplexServiceKt.rootFun(int)",
                         "org.example.threaddemo.services.ComplexService\$InnerClass\$Companion.one(java.lang.String)",
+                        "org.example.threaddemo.services.ComplexServiceKt.toHashCode(java.util.List)",
                     )
             }
 
@@ -96,6 +97,7 @@ class MethodCallAnalyzerComplexTest : DescribeSpec({
                         "org.example.threaddemo.services.ComplexService\$ComplexResult.getAnswer()",
                         "org.example.threaddemo.services.ComplexServiceKt.rootFun(int)",
                         "org.example.threaddemo.services.ComplexService\$InnerClass\$Companion.one(java.lang.String)",
+                        "org.example.threaddemo.services.ComplexServiceKt.toHashCode(java.util.List)",
                     )
             }
         }

@@ -29,8 +29,8 @@ enum class Projects(
     val searchScope: String,
 ) {
     MvcKotlin(
-        paths = listOf(Path.of("repositories/mvc-kotlin/src/main/kotlin")),
-        jarPaths = listOf(Path.of("repositories/mvc-kotlin/build/libs/mvc-kotlin-0.0.1-plain.jar")),
+        paths = listOf(Path.of("src/test/resources/mvc-project")),
+        jarPaths = listOf(Path.of("src/test/resources/mvc-project/mvc-project-0.0.1-plain.jar")),
         searchScope = "org.example",
     ),
     ;
@@ -76,6 +76,10 @@ class Resources(
                 // 隠しファイルを除外
                 !path.split("/").any { it.startsWith(".") }
             }
+    }
+
+    fun createFinder(methodSearchScope: String): Finder {
+        return Finder(this, methodSearchScope)
     }
 }
 

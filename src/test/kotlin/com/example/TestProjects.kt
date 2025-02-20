@@ -14,6 +14,6 @@ enum class TestProjects(
     MANY_FILES_PROJECT(Path("src/test/resources/many-files-project")), // 7つのソースファイルを含むプロジェクト（main:5 + test:2）
     MVC_PROJECT(
         path = Path("src/test/resources/mvc-project"),
-        jarPath = Path("src/test/resources/mvc-project/mvc-project.jar"),
+        jarPath = Path("src/test/resources/mvc-project/mvc-project-0.0.1-plain.jar"),
     ), // MVCプロジェクトのテスト用
 }
