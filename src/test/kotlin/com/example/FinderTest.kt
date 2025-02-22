@@ -2,6 +2,8 @@ package com.example
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import org.jetbrains.kotlin.psi.psiUtil.getValueParameterList
+import org.jetbrains.kotlin.psi.psiUtil.getValueParameters
 
 class FinderTest : DescribeSpec({
     describe("Finder") {
@@ -159,6 +161,49 @@ class FinderTest : DescribeSpec({
                         )
                     ktFunction shouldBe null
                 }
+            }
+        }
+
+        describe("findKtClass") {
+            it("存在するクラスの場合、対応するKtClassを返す") {
+                val ktClass = requireNotNull(
+                    finder.findKtClass(
+                        "org.example.threaddemo.services.OpService"
+                    )
+                )
+                ktClass.name shouldBe "OpService"
+            }
+
+            it("存在しないクラスの場合、nullを返す") {
+                val ktClass = finder.findKtClass(
+                    "org.example.threaddemo.services.NonExistentClass"
+                )
+                ktClass shouldBe null
+            }
+        }
+
+        describe("findKtParameter") {
+            it("存在するパラメータの場合、対応するKtParameterを返す") {
+                val ktParameter = requireNotNull(
+                    finder.findKtParameter(
+                        "org.example.threaddemo.services.ComplexService.helloRepository"
+                    )
+                )
+                ktParameter.name shouldBe "helloRepository"
+            }
+
+            it("存在しないパラメータの場合、nullを返す") {
+                val ktParameter = finder.findKtParameter(
+                    "org.example.threaddemo.services.ComplexService.nonExistentParameter"
+                )
+                ktParameter shouldBe null
+            }
+
+            it("存在しないクラスのパラメータの場合、nullを返す") {
+                val ktParameter = finder.findKtParameter(
+                    "org.example.threaddemo.services.NonExistentClass.parameter"
+                )
+                ktParameter shouldBe null
             }
         }
     }

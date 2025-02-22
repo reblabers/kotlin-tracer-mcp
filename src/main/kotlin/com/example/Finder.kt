@@ -2,7 +2,10 @@ package com.example
 
 import com.tngtech.archunit.core.domain.JavaMethod
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFunction
+import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.psi.psiUtil.getValueParameters
 
 class Finder(
     private val resources: Resources,
@@ -100,5 +103,32 @@ class Finder(
         }
 
         return null
+    }
+
+    /**
+     * 指定された名前のクラスを検索します。
+     *
+     * @param qualifiedClassName クラスの完全修飾名
+     * @return 見つかったクラス、見つからない場合はnull
+     */
+    fun findKtClass(qualifiedClassName: String): KtClass? {
+        val targetFqName = FqName(qualifiedClassName)
+        return resources.allSources().files
+            .filter { targetFqName.isOrInsideOf(it.packageFqName) }
+            .flatMap { it.readonly.classOrInterfaceList() }
+            .firstOrNull { it.fqName == targetFqName }
+    }
+
+    /**
+     * 指定された名前のプロパティを検索します。
+     *
+     * @param qualifiedPropertyName プロパティの完全修飾名
+     * @return 見つかったプロパティ、見つからない場合はnull
+     */
+    fun findKtParameter(qualifiedPropertyName: String): KtParameter? {
+        val targetFqName = FqName(qualifiedPropertyName)
+        return findKtClass(targetFqName.parent().asString())?.let { ktClass ->
+            return ktClass.getValueParameters().firstOrNull { it.fqName == targetFqName }
+        }
     }
 }
