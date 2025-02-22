@@ -183,7 +183,6 @@ class Finder(
         val targetFqName = FqName(qualifiedPropertyName)
         return findKtClass(targetFqName.parent().asString())?.let { ktClass ->
             val properties = ktClass.getProperties()
-            println("findKtProperty: ${ktClass.name} ${properties.size}")
             return properties.firstOrNull { it.fqName == targetFqName }
         }
     }
