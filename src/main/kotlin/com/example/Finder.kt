@@ -1,12 +1,11 @@
 package com.example
 
 import com.tngtech.archunit.core.domain.JavaClass
+import com.tngtech.archunit.core.domain.JavaConstructor
 import com.tngtech.archunit.core.domain.JavaMethod
+import com.tngtech.archunit.core.domain.JavaType
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.KtFunction
-import org.jetbrains.kotlin.psi.KtParameter
-import org.jetbrains.kotlin.psi.KtProperty
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.psi.psiUtil.getValueParameters
 
 class Finder(
@@ -79,22 +78,10 @@ class Finder(
         }
 
         if (functions.isNotEmpty()) {
-            val targetParameterTypes =
-                javaMethod.parameterTypes
-                    .map { it.name }
-                    .map { it.substringAfterLast(".") }
-                    .map { it.lowercase() }
-
-            for (function in functions) {
-                val parameterTypes =
-                    function.valueParameters
-                        .map { toTypeName(it) }
-                        .map { it.substringAfterLast(".") }
-                        .map { it.lowercase() }
-                if (parameterTypes == targetParameterTypes) {
-                    return function
-                }
-            }
+            val targetParameterTypes = toStringsFromJava(javaMethod.parameterTypes)
+            functions
+                .find { toStringsFromKt(it.valueParameters) == targetParameterTypes }
+                ?.let { return it }
         }
 
         return null
@@ -114,23 +101,10 @@ class Finder(
         }
 
         if (methods.isNotEmpty()) {
-            val targetParameterTypes =
-                ktFunction.valueParameters
-                    .map { toTypeName(it) }
-                    .map { it.substringAfterLast(".") }
-                    .map { it.lowercase() }
-
-            for (javaMethod in methods) {
-                val parameterTypes =
-                    javaMethod.parameterTypes
-                        .map { it.name }
-                        .map { it.substringAfterLast(".") }
-                        .map { it.lowercase() }
-
-                if (parameterTypes == targetParameterTypes) {
-                    return javaMethod
-                }
-            }
+            val targetParameterTypes = toStringsFromKt(ktFunction.valueParameters)
+            methods
+                .find { toStringsFromJava(it.parameterTypes) == targetParameterTypes }
+                ?.let { return it }
         }
 
         return null
@@ -213,4 +187,40 @@ class Finder(
             return properties.firstOrNull { it.fqName == targetFqName }
         }
     }
+
+    fun findJavaConstructor(qualifiedMethodName: String): JavaConstructor? {
+        val targetFqName = FqName(qualifiedMethodName)
+        return javaClasses
+            .filter { targetFqName.isOrInsideOf(FqName(it.packageName)) }
+            .flatMap { it.constructors }
+            .find { it.fullName == qualifiedMethodName }
+    }
+
+    fun findKtConstructor(qualifiedPropertyName: String): KtConstructor<*>? {
+        val javaConstructor = findJavaConstructor(qualifiedPropertyName)
+        if (javaConstructor == null) {
+            return null
+        }
+
+        val targetParameterTypes = toStringsFromJava(javaConstructor.parameterTypes)
+        findKtClass(javaConstructor.owner)?.let { ktClass ->
+            ktClass.constructors()
+                .find { toStringsFromKt(it.valueParameters) == targetParameterTypes }
+                ?.let { return it }
+        }
+
+        return null
+    }
 }
+
+private fun toStringsFromKt(parameters: List<KtParameter>): List<String> =
+    parameters
+        .map { toTypeName(it) }
+        .map { it.substringAfterLast(".") }
+        .map { it.lowercase() }
+
+private fun toStringsFromJava(parameters: List<JavaType>): List<String> =
+    parameters
+        .map { it.name }
+        .map { it.substringAfterLast(".") }
+        .map { it.lowercase() }

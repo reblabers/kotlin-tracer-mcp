@@ -2,6 +2,7 @@ package com.example
 
 import kotlinx.serialization.Serializable
 import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.KtConstructor
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtProperty
@@ -56,6 +57,16 @@ data class MethodDetailResult(
             return MethodDetailResult(
                 methodInfo = MethodInfo.from(qualifiedName),
                 sourceCode = property.text,
+            )
+        }
+
+        fun from(
+            qualifiedName: String,
+            constructor: KtConstructor<*>,
+        ): MethodDetailResult {
+            return MethodDetailResult(
+                methodInfo = MethodInfo.from(qualifiedName),
+                sourceCode = constructor.text,
             )
         }
     }
@@ -148,6 +159,14 @@ class MethodDetailAnalyzer(
                 finder.findKtProperty(it)
                     ?.let { return MethodDetailResult.from(qualifiedMethodName, it) }
             }
+
+        // <init>が含まれるか
+        if (qualifiedMethodName.contains("<init>")) {
+            finder.findKtConstructor(qualifiedMethodName)
+                ?.let {
+                    return MethodDetailResult.from(qualifiedMethodName, it)
+                }
+        }
 
         throw IllegalArgumentException("Method not found")
     }

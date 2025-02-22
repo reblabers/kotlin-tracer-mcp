@@ -549,15 +549,14 @@ class MethodDetailAnalyzerTest : DescribeSpec({
                         "org.example.threaddemo",
                     )
 
-                result.results.size shouldBe 2
-                result.failedQualifiedNames shouldContainExactly
-                    listOf(
-                        "org.example.threaddemo.converters.ComplexConverter.<init>(int)",
-                        "org.example.threaddemo.services.ComplexService\$ComplexResult.<init>(java.lang.String)",
-                    )
+                result.results.size shouldBe 4
+                result.failedQualifiedNames.shouldBeEmpty()
 
                 result.results[0].methodInfo.qualifiedName shouldBe "org.example.threaddemo.controllers.ComplexRequest.getName()"
-                result.results[1].methodInfo.qualifiedName shouldBe
+                result.results[1].methodInfo.qualifiedName shouldBe "org.example.threaddemo.converters.ComplexConverter.<init>(int)"
+                result.results[2].methodInfo.qualifiedName shouldBe
+                    "org.example.threaddemo.services.ComplexService\$ComplexResult.<init>(java.lang.String)"
+                result.results[3].methodInfo.qualifiedName shouldBe
                     "org.example.threaddemo.services.ComplexService\$ComplexResult.getAnswer()"
             }
         }

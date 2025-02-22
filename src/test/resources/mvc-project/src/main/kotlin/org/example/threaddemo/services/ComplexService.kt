@@ -30,7 +30,7 @@ class ComplexService(
     }
 
     data class ComplexResult(val answer: String) {
-        constructor(answer: Int) : this(answer.toString())
+        constructor(answer: Int) : this("answer = $answer")
     }
 
     fun exec(name: String): ComplexResult {
@@ -41,7 +41,7 @@ class ComplexService(
         return toResult(name, answers)
     }
 
-    private fun toResult(name: String, answers: List<Int>): ComplexResult = ComplexResult("$name: ${answers.first()}")
+    private fun toResult(name: String, answers: List<Int>): ComplexResult = ComplexResult(answers.first())
 
     private fun privateMethod(): Int {
         return worldRepository.count() * InnerClass.one()

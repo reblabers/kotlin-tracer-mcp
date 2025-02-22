@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtConstructor
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtTypeReference
@@ -33,6 +34,10 @@ fun <T : PsiElement> T.callList(): List<KtCallExpression> {
 
 fun <T : PsiElement> T.binaryExpressionList(): List<KtBinaryExpression> {
     return PsiTreeUtil.findChildrenOfType(this, KtBinaryExpression::class.java).toList()
+}
+
+fun <T : PsiElement> T.constructors(): List<KtConstructor<*>> {
+    return PsiTreeUtil.findChildrenOfType(this, KtConstructor::class.java).toList()
 }
 
 fun <T : PsiElement> T.elementType(): IElementType {
