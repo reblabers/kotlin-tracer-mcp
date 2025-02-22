@@ -3,6 +3,8 @@ package com.example
 import kotlinx.serialization.Serializable
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtFunction
+import org.jetbrains.kotlin.psi.KtParameter
+import org.jetbrains.kotlin.psi.KtProperty
 
 @Serializable
 data class MethodDetailsResult(
@@ -34,6 +36,26 @@ data class MethodDetailResult(
             return MethodDetailResult(
                 methodInfo = MethodInfo.from(function),
                 sourceCode = function.text,
+            )
+        }
+
+        fun from(
+            qualifiedName: String,
+            parameter: KtParameter,
+        ): MethodDetailResult {
+            return MethodDetailResult(
+                methodInfo = MethodInfo.from(qualifiedName),
+                sourceCode = parameter.text,
+            )
+        }
+
+        fun from(
+            qualifiedName: String,
+            property: KtProperty,
+        ): MethodDetailResult {
+            return MethodDetailResult(
+                methodInfo = MethodInfo.from(qualifiedName),
+                sourceCode = property.text,
             )
         }
     }
@@ -103,25 +125,30 @@ class MethodDetailAnalyzer(
             throw IllegalArgumentException("Method not found in search scope")
         }
 
-        val methods =
-            resources.allSources().files
-                .filter { targetFqName.isOrInsideOf(it.packageFqName) }
-                .flatMap { it.readonly.functionList() }
-
         // JavaMethodとして検索
-        val targetFunction =
-            finder.findKtFunction(qualifiedMethodName)
-                ?: run {
-                    // KtFunctionとして見つからない場合、JavaMethodとして検索
-                    val javaMethod =
-                        finder.findJavaMethod(qualifiedMethodName)
-                            ?: throw IllegalArgumentException("Method not found")
+        finder.findKtFunction(qualifiedMethodName)
+            ?.let { return MethodDetailResult.from(it) }
 
-                    // JavaMethodからKtFunctionに変換
-                    finder.findKtFunction(javaMethod)
-                        ?: throw IllegalArgumentException("Method not found: Failed to convert Java method to Kotlin function")
-                }
+        // KtFunctionとして見つからない場合、JavaMethodとして検索
+        finder.findJavaMethod(qualifiedMethodName)
+            ?.let { finder.findKtFunction(it) }
+            ?.let { return MethodDetailResult.from(it) }
 
-        return MethodDetailResult.from(targetFunction)
+        // 明示的なメソッドが存在しないgetter/setterを探索
+        Regex("^(.+)\\.(get|set)(.*)\\(\\)$").find(qualifiedMethodName)
+            ?.let {
+                val string = it.groupValues[1]
+                val propertyName = it.groupValues[3].replaceFirstChar { it.lowercase() }
+                "$string.$propertyName"
+            }
+            ?.let {
+                finder.findKtParameter(it)
+                    ?.let { return MethodDetailResult.from(qualifiedMethodName, it) }
+
+                finder.findKtProperty(it)
+                    ?.let { return MethodDetailResult.from(qualifiedMethodName, it) }
+            }
+
+        throw IllegalArgumentException("Method not found")
     }
 }

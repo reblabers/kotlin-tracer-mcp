@@ -25,16 +25,19 @@ class MethodDetailAnalyzerTest : DescribeSpec({
 
                 result.methodInfo shouldBe
                     MethodInfo(
-                        name = "exec",
                         qualifiedName = "org.example.threaddemo.controllers.ComplexController.exec(ComplexRequest)", // from kt function
-                        visibility = "public",
-                        annotations = listOf("@PostMapping(\"/exec\")"),
-                        modifiers = emptyList(),
-                        parameters =
-                            listOf(
-                                ParameterInfo("request", "ComplexRequest"),
+                        meta =
+                            MethodMetaInfo(
+                                name = "exec",
+                                visibility = "public",
+                                annotations = listOf("@PostMapping(\"/exec\")"),
+                                modifiers = emptyList(),
+                                parameters =
+                                    listOf(
+                                        ParameterInfo("request", "ComplexRequest"),
+                                    ),
+                                returnType = "String",
                             ),
-                        returnType = "String",
                     )
             }
 
@@ -52,16 +55,19 @@ class MethodDetailAnalyzerTest : DescribeSpec({
 
                 result.methodInfo shouldBe
                     MethodInfo(
-                        name = "plus",
                         qualifiedName = "org.example.threaddemo.services.OpService.plus(int)",
-                        visibility = "public",
-                        annotations = emptyList(),
-                        modifiers = emptyList(),
-                        parameters =
-                            listOf(
-                                ParameterInfo("a", "int"),
+                        meta =
+                            MethodMetaInfo(
+                                name = "plus",
+                                visibility = "public",
+                                annotations = emptyList(),
+                                modifiers = emptyList(),
+                                parameters =
+                                    listOf(
+                                        ParameterInfo("a", "int"),
+                                    ),
+                                returnType = "int",
                             ),
-                        returnType = "int",
                     )
             }
 
@@ -113,17 +119,20 @@ class MethodDetailAnalyzerTest : DescribeSpec({
 
                 result.methodInfo shouldBe
                     MethodInfo(
-                        name = "rootFun",
                         qualifiedName = "org.example.threaddemo.converters.rootFun(int,int)",
-                        visibility = "public",
-                        annotations = emptyList(),
-                        modifiers = emptyList(),
-                        parameters =
-                            listOf(
-                                ParameterInfo("a", "int"),
-                                ParameterInfo("b", "int"),
+                        meta =
+                            MethodMetaInfo(
+                                name = "rootFun",
+                                visibility = "public",
+                                annotations = emptyList(),
+                                modifiers = emptyList(),
+                                parameters =
+                                    listOf(
+                                        ParameterInfo("a", "int"),
+                                        ParameterInfo("b", "int"),
+                                    ),
+                                returnType = "int",
                             ),
-                        returnType = "int",
                     )
             }
 
@@ -141,13 +150,16 @@ class MethodDetailAnalyzerTest : DescribeSpec({
 
                 result.methodInfo shouldBe
                     MethodInfo(
-                        name = "privateMethod",
                         qualifiedName = "org.example.threaddemo.services.OpService.privateMethod()",
-                        visibility = "private",
-                        annotations = emptyList(),
-                        modifiers = listOf("private"),
-                        parameters = emptyList(),
-                        returnType = "int",
+                        meta =
+                            MethodMetaInfo(
+                                name = "privateMethod",
+                                visibility = "private",
+                                annotations = emptyList(),
+                                modifiers = listOf("private"),
+                                parameters = emptyList(),
+                                returnType = "int",
+                            ),
                     )
             }
 
@@ -165,13 +177,16 @@ class MethodDetailAnalyzerTest : DescribeSpec({
 
                 result.methodInfo shouldBe
                     MethodInfo(
-                        name = "multiAnnotatedMethod",
                         qualifiedName = "org.example.threaddemo.controllers.OpController.multiAnnotatedMethod()",
-                        visibility = "public",
-                        annotations = listOf("@GetMapping(\"/multi\")", "@ResponseBody"),
-                        modifiers = emptyList(),
-                        parameters = emptyList(),
-                        returnType = "String",
+                        meta =
+                            MethodMetaInfo(
+                                name = "multiAnnotatedMethod",
+                                visibility = "public",
+                                annotations = listOf("@GetMapping(\"/multi\")", "@ResponseBody"),
+                                modifiers = emptyList(),
+                                parameters = emptyList(),
+                                returnType = "String",
+                            ),
                     )
             }
 
@@ -184,16 +199,19 @@ class MethodDetailAnalyzerTest : DescribeSpec({
 
                 val expected =
                     MethodInfo(
-                        name = "convertGeneric",
                         qualifiedName = "org.example.threaddemo.converters.ComplexConverter.convertGeneric(List<String>)",
-                        visibility = "public",
-                        annotations = emptyList(),
-                        modifiers = emptyList(),
-                        parameters =
-                            listOf(
-                                ParameterInfo("input", "List<String>"),
+                        meta =
+                            MethodMetaInfo(
+                                name = "convertGeneric",
+                                visibility = "public",
+                                annotations = emptyList(),
+                                modifiers = emptyList(),
+                                parameters =
+                                    listOf(
+                                        ParameterInfo("input", "List<String>"),
+                                    ),
+                                returnType = "List<Int>",
                             ),
-                        returnType = "List<Int>",
                     )
 
                 it("from JavaMethod") {
@@ -229,29 +247,35 @@ class MethodDetailAnalyzerTest : DescribeSpec({
 
                 result.methodInfo shouldBe
                     MethodInfo(
-                        name = "suspendOperation",
                         qualifiedName = "org.example.threaddemo.services.OpService.suspendOperation()",
-                        visibility = "public",
-                        annotations = emptyList(),
-                        modifiers = listOf("suspend"),
-                        parameters = emptyList(),
-                        returnType = "String",
+                        meta =
+                            MethodMetaInfo(
+                                name = "suspendOperation",
+                                visibility = "public",
+                                annotations = emptyList(),
+                                modifiers = listOf("suspend"),
+                                parameters = emptyList(),
+                                returnType = "String",
+                            ),
                     )
             }
 
             context("インナークラスのメソッド情報を取得できる") {
                 val expected =
                     MethodInfo(
-                        name = "multiply",
                         qualifiedName = "org.example.threaddemo.services.OpService.InnerClass.multiply(int)",
-                        visibility = "public",
-                        annotations = emptyList(),
-                        modifiers = emptyList(),
-                        parameters =
-                            listOf(
-                                ParameterInfo("a", "int"),
+                        meta =
+                            MethodMetaInfo(
+                                name = "multiply",
+                                visibility = "public",
+                                annotations = emptyList(),
+                                modifiers = emptyList(),
+                                parameters =
+                                    listOf(
+                                        ParameterInfo("a", "int"),
+                                    ),
+                                returnType = "int",
                             ),
-                        returnType = "int",
                     )
 
                 val analyzer =
@@ -287,13 +311,16 @@ class MethodDetailAnalyzerTest : DescribeSpec({
                     ).createMethodDetailAnalyzer()
                 val expected =
                     MethodInfo(
-                        name = "default",
                         qualifiedName = "org.example.threaddemo.converters.ComplexConverter.Companion.default()",
-                        visibility = "public",
-                        annotations = emptyList(),
-                        modifiers = emptyList(),
-                        parameters = emptyList(),
-                        returnType = "ComplexConverter",
+                        meta =
+                            MethodMetaInfo(
+                                name = "default",
+                                visibility = "public",
+                                annotations = emptyList(),
+                                modifiers = emptyList(),
+                                parameters = emptyList(),
+                                returnType = "ComplexConverter",
+                            ),
                     )
 
                 it("from JavaMethod") {
@@ -329,16 +356,19 @@ class MethodDetailAnalyzerTest : DescribeSpec({
 
                 result.methodInfo shouldBe
                     MethodInfo(
-                        name = "calculate",
                         qualifiedName = "org.example.threaddemo.converters.MultiplyScale.calculate(int)",
-                        visibility = "public",
-                        annotations = emptyList(),
-                        modifiers = emptyList(),
-                        parameters =
-                            listOf(
-                                ParameterInfo("value", "int"),
+                        meta =
+                            MethodMetaInfo(
+                                name = "calculate",
+                                visibility = "public",
+                                annotations = emptyList(),
+                                modifiers = emptyList(),
+                                parameters =
+                                    listOf(
+                                        ParameterInfo("value", "int"),
+                                    ),
+                                returnType = "int",
                             ),
-                        returnType = "int",
                     )
             }
 
@@ -356,16 +386,19 @@ class MethodDetailAnalyzerTest : DescribeSpec({
 
                 result.methodInfo shouldBe
                     MethodInfo(
-                        name = "rootFun",
                         qualifiedName = "org.example.threaddemo.converters.rootFun(int)",
-                        visibility = "public",
-                        annotations = emptyList(),
-                        modifiers = emptyList(),
-                        parameters =
-                            listOf(
-                                ParameterInfo("a", "int"),
+                        meta =
+                            MethodMetaInfo(
+                                name = "rootFun",
+                                visibility = "public",
+                                annotations = emptyList(),
+                                modifiers = emptyList(),
+                                parameters =
+                                    listOf(
+                                        ParameterInfo("a", "int"),
+                                    ),
+                                returnType = "int",
                             ),
-                        returnType = "int",
                     )
             }
 
@@ -377,16 +410,19 @@ class MethodDetailAnalyzerTest : DescribeSpec({
                     ).createMethodDetailAnalyzer()
                 val expected =
                     MethodInfo(
-                        name = "divide",
                         qualifiedName = "org.example.threaddemo.services.Op.divide(int)",
-                        visibility = "public",
-                        annotations = emptyList(),
-                        modifiers = emptyList(),
-                        parameters =
-                            listOf(
-                                ParameterInfo("a", "int"),
+                        meta =
+                            MethodMetaInfo(
+                                name = "divide",
+                                visibility = "public",
+                                annotations = emptyList(),
+                                modifiers = emptyList(),
+                                parameters =
+                                    listOf(
+                                        ParameterInfo("a", "int"),
+                                    ),
+                                returnType = "int",
                             ),
-                        returnType = "int",
                     )
 
                 it("from JavaMethod inner class") {
@@ -437,8 +473,9 @@ class MethodDetailAnalyzerTest : DescribeSpec({
                 result.results.size shouldBe 2
                 result.failedQualifiedNames.shouldBeEmpty()
 
-                result.results[0].methodInfo.name shouldBe "exec"
-                result.results[1].methodInfo.name shouldBe "plus"
+                result.results[0].methodInfo.qualifiedName shouldBe
+                    "org.example.threaddemo.controllers.ComplexController.exec(ComplexRequest)"
+                result.results[1].methodInfo.qualifiedName shouldBe "org.example.threaddemo.services.OpService.plus(int)"
             }
 
             it("存在しないメソッドがある場合は失敗リストに追加される") {
@@ -463,8 +500,9 @@ class MethodDetailAnalyzerTest : DescribeSpec({
                         "org.example.threaddemo.controllers.ComplexController.nonExistentMethod()",
                     )
 
-                result.results[0].methodInfo.name shouldBe "exec"
-                result.results[1].methodInfo.name shouldBe "plus"
+                result.results[0].methodInfo.qualifiedName shouldBe
+                    "org.example.threaddemo.controllers.ComplexController.exec(ComplexRequest)"
+                result.results[1].methodInfo.qualifiedName shouldBe "org.example.threaddemo.services.OpService.plus(int)"
             }
 
             it("不正なメソッド名フォーマットがある場合は失敗リストに追加される") {
@@ -489,8 +527,38 @@ class MethodDetailAnalyzerTest : DescribeSpec({
                         "org.example.threaddemo.controllers.ComplexController.invalidMethod",
                     )
 
-                result.results[0].methodInfo.name shouldBe "exec"
-                result.results[1].methodInfo.name shouldBe "plus"
+                requireNotNull(result.results[0].methodInfo).qualifiedName shouldBe
+                    "org.example.threaddemo.controllers.ComplexController.exec(ComplexRequest)"
+                requireNotNull(result.results[1].methodInfo).qualifiedName shouldBe "org.example.threaddemo.services.OpService.plus(int)"
+            }
+
+            it("指定された複数のメソッドが存在しない場合は失敗リストに追加される") {
+                val analyzer =
+                    ToolFactory.forPathWithJar(
+                        TestProjects.MVC_PROJECT.path,
+                        TestProjects.MVC_PROJECT.jarPath!!,
+                    ).createMethodDetailAnalyzer()
+                val result =
+                    analyzer.getMethodDetails(
+                        listOf(
+                            "org.example.threaddemo.controllers.ComplexRequest.getName()",
+                            "org.example.threaddemo.converters.ComplexConverter.<init>(int)",
+                            "org.example.threaddemo.services.ComplexService\$ComplexResult.<init>(java.lang.String)",
+                            "org.example.threaddemo.services.ComplexService\$ComplexResult.getAnswer()",
+                        ),
+                        "org.example.threaddemo",
+                    )
+
+                result.results.size shouldBe 2
+                result.failedQualifiedNames shouldContainExactly
+                    listOf(
+                        "org.example.threaddemo.converters.ComplexConverter.<init>(int)",
+                        "org.example.threaddemo.services.ComplexService\$ComplexResult.<init>(java.lang.String)",
+                    )
+
+                result.results[0].methodInfo.qualifiedName shouldBe "org.example.threaddemo.controllers.ComplexRequest.getName()"
+                result.results[1].methodInfo.qualifiedName shouldBe
+                    "org.example.threaddemo.services.ComplexService\$ComplexResult.getAnswer()"
             }
         }
     }

@@ -39,14 +39,19 @@ fun toTypeName(parameter: KtParameter): String {
  * @property returnType 戻り値の型
  */
 @Serializable
-data class MethodInfo(
+data class MethodMetaInfo(
     val name: String,
-    val qualifiedName: String,
     val visibility: String,
-    val annotations: List<String>,
-    val modifiers: List<String>,
-    val parameters: List<ParameterInfo>,
+    val annotations: List<String> = emptyList(),
+    val modifiers: List<String> = emptyList(),
+    val parameters: List<ParameterInfo> = emptyList(),
     val returnType: String,
+)
+
+@Serializable
+data class MethodInfo(
+    val qualifiedName: String,
+    val meta: MethodMetaInfo?,
 ) {
     companion object {
         /**
@@ -57,13 +62,23 @@ data class MethodInfo(
             val (annotations, modifiers) = allModifiers.partition { it.startsWith("@") }
 
             return MethodInfo(
-                name = function.name ?: "",
                 qualifiedName = toQualifiedName(function),
-                visibility = function.visibilityModifierType()?.value ?: "public",
-                annotations = annotations.map { it.trim() }.sorted(),
-                modifiers = modifiers.sorted(),
-                parameters = function.valueParameters.map { ParameterInfo.from(it) },
-                returnType = function.typeReference?.javaTypeString() ?: "Unit",
+                meta =
+                    MethodMetaInfo(
+                        name = function.name ?: "",
+                        visibility = function.visibilityModifierType()?.value ?: "public",
+                        annotations = annotations.map { it.trim() }.sorted(),
+                        modifiers = modifiers.sorted(),
+                        parameters = function.valueParameters.map { ParameterInfo.from(it) },
+                        returnType = function.typeReference?.javaTypeString() ?: "Unit",
+                    ),
+            )
+        }
+
+        fun from(qualifiedName: String): MethodInfo {
+            return MethodInfo(
+                qualifiedName = qualifiedName,
+                meta = null,
             )
         }
     }

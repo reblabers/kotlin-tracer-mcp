@@ -29,7 +29,9 @@ class ComplexService(
         }
     }
 
-    data class ComplexResult(val answer: String)
+    data class ComplexResult(val answer: String) {
+        constructor(answer: Int) : this(answer.toString())
+    }
 
     fun exec(name: String): ComplexResult {
         val hash = listOf(name, String(CharArray(3))).toHashCode()

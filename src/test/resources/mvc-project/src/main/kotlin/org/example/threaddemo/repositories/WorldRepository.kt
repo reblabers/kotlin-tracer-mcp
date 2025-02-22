@@ -4,7 +4,9 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class WorldRepository {
+    var weight = 2
+
     fun count(): Int {
-        return 2
+        return weight
     }
 }

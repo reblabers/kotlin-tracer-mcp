@@ -36,6 +36,7 @@ class MethodCallAnalyzerComplexTest : DescribeSpec({
                         "org.example.threaddemo.services.ComplexServiceKt.rootFun(int)",
                         "org.example.threaddemo.services.ComplexService\$InnerClass\$Companion.one(java.lang.String)",
                         "org.example.threaddemo.services.ComplexServiceKt.toHashCode(java.util.List)",
+                        "org.example.threaddemo.repositories.WorldRepository.getWeight()",
                     )
             }
 
@@ -57,6 +58,7 @@ class MethodCallAnalyzerComplexTest : DescribeSpec({
                     listOf(
                         "org.example.threaddemo.repositories.WorldRepository.count()",
                         "org.example.threaddemo.services.ComplexService\$InnerClass\$Companion.one()",
+                        "org.example.threaddemo.repositories.WorldRepository.getWeight()",
                     )
             }
         }
@@ -98,6 +100,7 @@ class MethodCallAnalyzerComplexTest : DescribeSpec({
                         "org.example.threaddemo.services.ComplexServiceKt.rootFun(int)",
                         "org.example.threaddemo.services.ComplexService\$InnerClass\$Companion.one(java.lang.String)",
                         "org.example.threaddemo.services.ComplexServiceKt.toHashCode(java.util.List)",
+                        "org.example.threaddemo.repositories.WorldRepository.getWeight()",
                     )
             }
         }

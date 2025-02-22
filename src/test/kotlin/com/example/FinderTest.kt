@@ -2,8 +2,6 @@ package com.example
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import org.jetbrains.kotlin.psi.psiUtil.getValueParameterList
-import org.jetbrains.kotlin.psi.psiUtil.getValueParameters
 
 class FinderTest : DescribeSpec({
     describe("Finder") {
@@ -15,62 +13,97 @@ class FinderTest : DescribeSpec({
         val finder = resources.createFinder("org.example.threaddemo")
 
         describe("相互変換") {
-            it("JavaMethodとKtFunctionが相互に変換できる") {
-                // JavaMethod -> KtFunction -> JavaMethod
-                val javaMethod1 =
-                    requireNotNull(
-                        finder.findJavaMethod(
-                            "org.example.threaddemo.services.OpService.plus(int)",
-                        ),
-                    )
+            describe("関数") {
+                it("JavaMethodとKtFunctionが相互に変換できる") {
+                    // JavaMethod -> KtFunction -> JavaMethod
+                    val javaMethod1 =
+                        requireNotNull(
+                            finder.findJavaMethod(
+                                "org.example.threaddemo.services.OpService.plus(int)",
+                            ),
+                        )
 
-                val ktFunction1 = requireNotNull(finder.findKtFunction(javaMethod1))
+                    val ktFunction1 = requireNotNull(finder.findKtFunction(javaMethod1))
 
-                val javaMethod2 = requireNotNull(finder.findJavaMethod(ktFunction1))
-                javaMethod2.fullName shouldBe javaMethod1.fullName
+                    val javaMethod2 = requireNotNull(finder.findJavaMethod(ktFunction1))
+                    javaMethod2.fullName shouldBe javaMethod1.fullName
 
-                // KtFunction -> JavaMethod -> KtFunction
-                val ktFunction2 =
-                    requireNotNull(
-                        finder.findKtFunction(
-                            "org.example.threaddemo.services.OpService.plus(int)",
-                        ),
-                    )
+                    // KtFunction -> JavaMethod -> KtFunction
+                    val ktFunction2 =
+                        requireNotNull(
+                            finder.findKtFunction(
+                                "org.example.threaddemo.services.OpService.plus(int)",
+                            ),
+                        )
 
-                val javaMethod3 = requireNotNull(finder.findJavaMethod(ktFunction2))
+                    val javaMethod3 = requireNotNull(finder.findJavaMethod(ktFunction2))
 
-                val ktFunction3 = requireNotNull(finder.findKtFunction(javaMethod3))
-                ktFunction3.name shouldBe ktFunction2.name
-                ktFunction3.valueParameters.size shouldBe ktFunction2.valueParameters.size
+                    val ktFunction3 = requireNotNull(finder.findKtFunction(javaMethod3))
+                    ktFunction3.name shouldBe ktFunction2.name
+                    ktFunction3.valueParameters.size shouldBe ktFunction2.valueParameters.size
+                }
+
+                it("オーバーロードされたメソッドでも相互に変換できる") {
+                    // JavaMethod -> KtFunction -> JavaMethod
+                    val javaMethod1 =
+                        requireNotNull(
+                            finder.findJavaMethod(
+                                "org.example.threaddemo.converters.ComplexConverterKt.rootFun(int, int)",
+                            ),
+                        )
+
+                    val ktFunction1 = requireNotNull(finder.findKtFunction(javaMethod1))
+
+                    val javaMethod2 = requireNotNull(finder.findJavaMethod(ktFunction1))
+                    javaMethod2.fullName shouldBe javaMethod1.fullName
+
+                    // KtFunction -> JavaMethod -> KtFunction
+                    val ktFunction2 =
+                        requireNotNull(
+                            finder.findKtFunction(
+                                "org.example.threaddemo.converters.rootFun(int)",
+                            ),
+                        )
+
+                    val javaMethod3 = requireNotNull(finder.findJavaMethod(ktFunction2))
+
+                    val ktFunction3 = requireNotNull(finder.findKtFunction(javaMethod3))
+                    ktFunction3.name shouldBe ktFunction2.name
+                    ktFunction3.valueParameters.size shouldBe ktFunction2.valueParameters.size
+                }
             }
 
-            it("オーバーロードされたメソッドでも相互に変換できる") {
-                // JavaMethod -> KtFunction -> JavaMethod
-                val javaMethod1 =
-                    requireNotNull(
-                        finder.findJavaMethod(
-                            "org.example.threaddemo.converters.ComplexConverterKt.rootFun(int, int)",
-                        ),
-                    )
+            describe("クラス") {
+                it("JavaClassとKtClassが相互に変換できる") {
+                    // JavaClass -> KtClass -> JavaClass
+                    val javaClass1 =
+                        requireNotNull(finder.findJavaClass("org.example.threaddemo.services.OpService"))
+                    val ktClass1 = requireNotNull(finder.findKtClass(javaClass1))
+                    val javaClass2 = requireNotNull(finder.findJavaClass(ktClass1))
+                    javaClass2.name shouldBe javaClass1.name
 
-                val ktFunction1 = requireNotNull(finder.findKtFunction(javaMethod1))
+                    // KtClass -> JavaClass -> KtClass
+                    val ktClass2 = requireNotNull(finder.findKtClass("org.example.threaddemo.services.OpService"))
+                    val javaClass3 = requireNotNull(finder.findJavaClass(ktClass2))
+                    val ktClass3 = requireNotNull(finder.findKtClass(javaClass3))
+                    ktClass3.name shouldBe ktClass2.name
+                }
 
-                val javaMethod2 = requireNotNull(finder.findJavaMethod(ktFunction1))
-                javaMethod2.fullName shouldBe javaMethod1.fullName
+                it("インナークラスでも相互に変換できる") {
+                    // JavaClass -> KtClass -> JavaClass
+                    val javaClass1 =
+                        requireNotNull(finder.findJavaClass("org.example.threaddemo.services.ComplexService\$ComplexResult"))
+                    val ktClass1 = requireNotNull(finder.findKtClass(javaClass1))
+                    val javaClass2 = requireNotNull(finder.findJavaClass(ktClass1))
+                    javaClass2.name shouldBe javaClass1.name
 
-                // KtFunction -> JavaMethod -> KtFunction
-                val ktFunction2 =
-                    requireNotNull(
-                        finder.findKtFunction(
-                            "org.example.threaddemo.converters.rootFun(int)",
-                        ),
-                    )
-
-                val javaMethod3 = requireNotNull(finder.findJavaMethod(ktFunction2))
-
-                val ktFunction3 = requireNotNull(finder.findKtFunction(javaMethod3))
-                ktFunction3.name shouldBe ktFunction2.name
-                ktFunction3.valueParameters.size shouldBe ktFunction2.valueParameters.size
+                    // KtClass -> JavaClass -> KtClass
+                    val ktClass2 =
+                        requireNotNull(finder.findKtClass("org.example.threaddemo.services.ComplexService\$ComplexResult"))
+                    val javaClass3 = requireNotNull(finder.findJavaClass(ktClass2))
+                    val ktClass3 = requireNotNull(finder.findKtClass(javaClass3))
+                    ktClass3.name shouldBe ktClass2.name
+                }
             }
         }
 
@@ -165,45 +198,100 @@ class FinderTest : DescribeSpec({
         }
 
         describe("findKtClass") {
-            it("存在するクラスの場合、対応するKtClassを返す") {
-                val ktClass = requireNotNull(
-                    finder.findKtClass(
-                        "org.example.threaddemo.services.OpService"
-                    )
-                )
-                ktClass.name shouldBe "OpService"
-            }
+            describe("from qualifiedClassName") {
+                it("存在するクラスの場合、対応するKtClassを返す") {
+                    val ktClass =
+                        requireNotNull(
+                            finder.findKtClass(
+                                "org.example.threaddemo.services.OpService",
+                            ),
+                        )
+                    ktClass.name shouldBe "OpService"
+                }
 
-            it("存在しないクラスの場合、nullを返す") {
-                val ktClass = finder.findKtClass(
-                    "org.example.threaddemo.services.NonExistentClass"
-                )
-                ktClass shouldBe null
+                it("インナークラスの場合、対応するKtClassを返す") {
+                    val ktClass =
+                        requireNotNull(
+                            finder.findKtClass(
+                                "org.example.threaddemo.services.ComplexService\$ComplexResult",
+                            ),
+                        )
+                    ktClass.name shouldBe "ComplexResult"
+                }
+
+                it("存在しないクラスの場合、nullを返す") {
+                    val ktClass =
+                        finder.findKtClass(
+                            "org.example.threaddemo.services.NonExistentClass",
+                        )
+                    ktClass shouldBe null
+                }
             }
         }
 
         describe("findKtParameter") {
             it("存在するパラメータの場合、対応するKtParameterを返す") {
-                val ktParameter = requireNotNull(
-                    finder.findKtParameter(
-                        "org.example.threaddemo.services.ComplexService.helloRepository"
+                val ktParameter =
+                    requireNotNull(
+                        finder.findKtParameter(
+                            "org.example.threaddemo.services.ComplexService.helloRepository",
+                        ),
                     )
-                )
                 ktParameter.name shouldBe "helloRepository"
             }
 
+            it("インナークラスのパラメータの場合、対応するKtParameterを返す") {
+                val ktParameter =
+                    requireNotNull(
+                        finder.findKtParameter(
+                            "org.example.threaddemo.services.ComplexService\$ComplexResult.answer",
+                        ),
+                    )
+                ktParameter.name shouldBe "answer"
+            }
+
             it("存在しないパラメータの場合、nullを返す") {
-                val ktParameter = finder.findKtParameter(
-                    "org.example.threaddemo.services.ComplexService.nonExistentParameter"
-                )
+                val ktParameter =
+                    finder.findKtParameter(
+                        "org.example.threaddemo.services.ComplexService.nonExistentParameter",
+                    )
                 ktParameter shouldBe null
             }
 
             it("存在しないクラスのパラメータの場合、nullを返す") {
-                val ktParameter = finder.findKtParameter(
-                    "org.example.threaddemo.services.NonExistentClass.parameter"
-                )
+                val ktParameter =
+                    finder.findKtParameter(
+                        "org.example.threaddemo.services.NonExistentClass.parameter",
+                    )
                 ktParameter shouldBe null
+            }
+        }
+
+        describe("findKtProperty") {
+            it("存在するパラメータの場合、対応するKtParameterを返す") {
+                val ktProperty =
+                    requireNotNull(
+                        finder.findKtProperty(
+                            "org.example.threaddemo.repositories.WorldRepository.weight",
+                        ),
+                    )
+                ktProperty.name shouldBe "weight"
+            }
+
+            it("存在しないパラメータの場合、nullを返す") {
+                val ktProperty =
+                    finder.findKtProperty(
+                        "org.example.threaddemo.repositories.WorldRepository.nonExistentProperty",
+                    )
+                ktProperty shouldBe null
+            }
+
+            it("存在しないクラスのパラメータの場合、nullを返す") {
+                val ktProperty =
+                    finder.findKtParameter(
+                        "org.example.threaddemo.services.NonExistentClass.parameter",
+                    )
+                ktProperty shouldBe null
             }
         }
     }

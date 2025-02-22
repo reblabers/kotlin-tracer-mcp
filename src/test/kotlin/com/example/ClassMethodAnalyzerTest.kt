@@ -21,13 +21,16 @@ class ClassMethodAnalyzerTest : DescribeSpec({
                 result.methods shouldHaveSize 1
                 result.methods.first() shouldBe
                     MethodInfo(
-                        name = "method4",
                         qualifiedName = "com.example.File4.method4()",
-                        visibility = "public",
-                        annotations = listOf("@NotNull"),
-                        modifiers = emptyList(),
-                        parameters = emptyList(),
-                        returnType = "Unit",
+                        meta =
+                            MethodMetaInfo(
+                                name = "method4",
+                                visibility = "public",
+                                annotations = listOf("@NotNull"),
+                                modifiers = emptyList(),
+                                parameters = emptyList(),
+                                returnType = "Unit",
+                            ),
                     )
             }
 
@@ -40,7 +43,7 @@ class ClassMethodAnalyzerTest : DescribeSpec({
                 result.className shouldBe "File3"
                 result.qualifiedName shouldBe "com.example.File3"
                 result.methods shouldHaveSize 2
-                result.methods.map { it.name }.shouldContainExactlyInAnyOrder("method3", "method3v2")
+                result.methods.map { it.meta?.name }.shouldContainExactlyInAnyOrder("method3", "method3v2")
             }
         }
 
@@ -51,7 +54,7 @@ class ClassMethodAnalyzerTest : DescribeSpec({
                         .createClassMethodAnalyzer()
                 val result = analyzer.analyzeBySimpleName("File3")
 
-                result.methods.map { it.visibility }.shouldContainExactlyInAnyOrder(
+                result.methods.map { it.meta?.visibility }.shouldContainExactlyInAnyOrder(
                     "public",
                     "public",
                 )
@@ -70,13 +73,16 @@ class ClassMethodAnalyzerTest : DescribeSpec({
                 result.methods shouldHaveSize 1
                 result.methods.first() shouldBe
                     MethodInfo(
-                        name = "method5",
                         qualifiedName = "com.example.File5.method5(int)",
-                        visibility = "protected",
-                        annotations = emptyList(),
-                        modifiers = listOf("final", "protected"),
-                        parameters = listOf(ParameterInfo("value", "int")),
-                        returnType = "String",
+                        meta =
+                            MethodMetaInfo(
+                                name = "method5",
+                                visibility = "protected",
+                                annotations = emptyList(),
+                                modifiers = listOf("final", "protected"),
+                                parameters = listOf(ParameterInfo("value", "int")),
+                                returnType = "String",
+                            ),
                     )
             }
         }

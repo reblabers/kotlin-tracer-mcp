@@ -63,6 +63,7 @@ class MethodCallAnalyzerTest : DescribeSpec({
                         "org.example.threaddemo.repositories.HelloRepository.count()",
                         "org.example.threaddemo.services.OpService.privateMethod()",
                         "org.example.threaddemo.repositories.WorldRepository.count()",
+                        "org.example.threaddemo.repositories.WorldRepository.getWeight()",
                     )
             }
         }
